@@ -351,12 +351,12 @@
             const svg = d3.select("#tree").append("svg")
                 .attr("width", "100%")
                 .attr("height", height)
-                .attr("viewBox", [0, 0, width * 2, height]);
+                .attr("viewBox", [0, 0, width * 1.8, height]);
             
             const g = svg.append("g");
             
-            // ✅ 修复：增大垂直间距[70, 180]，缩短水平间距
-            const tree = d3.tree().nodeSize([70, 180]);
+            // ✅ 修复：增大垂直间距[70, 240]，增加水平间距避免重叠
+            const tree = d3.tree().nodeSize([70, 240]);
             
             const root = d3.hierarchy(treeData);
             tree(root);
@@ -422,7 +422,7 @@
                 });
             
             svg.call(zoom);
-            svg.call(zoom.transform, d3.zoomIdentity.scale(0.7));
+            svg.call(zoom.transform, d3.zoomIdentity.scale(0.9));
         }
         
         let reciteMode = false;
