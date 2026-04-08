@@ -141,7 +141,7 @@
             filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
         }
         .node text {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
         }
         .link {
@@ -232,12 +232,28 @@
         </div>
     </div>
     <div class="export-hint" id="exportHint">正在生成图片...</div>
-
     <script>
         const colors = {
             1: "#e74c3c", 2: "#3498db", 3: "#e84393", 4: "#fd79a8",
             5: "#f39c12", 6: "#9b59b6", 7: "#00cec9", 8: "#0984e3", 9: "#636e72"
         };
+        
+        function wrapText(text, maxLength) {
+            if (text.length <= maxLength) return [text];
+            const words = text.split("；");
+            const lines = [];
+            let currentLine = "";
+            words.forEach(word => {
+                if ((currentLine + word).length > maxLength && currentLine.length > 0) {
+                    lines.push(currentLine + "；");
+                    currentLine = word;
+                } else {
+                    currentLine += (currentLine ? "；" : "") + word;
+                }
+            });
+            if (currentLine) lines.push(currentLine);
+            return lines.length > 0 ? lines : [text];
+        }
         
         const treeData = {
             name: "危险品的分类",
@@ -253,202 +269,76 @@
                 },
                 {
                     name: "第1类 爆炸品",
-                    type: "category",
-                    category: 1,
+                    type: "category", category: 1,
                     children: [
-                        {
-                            name: "1.1项 有整体爆炸危险性的物质和物品；",
-                            type: "original", category: 1,
-                            children: [{ name: "【对应】TNT炸药、硝化甘油、雷管、爆破用电雷管", type: "supplement", category: 1 }]
-                        },
-                        {
-                            name: "1.2项 有迸射危险，但无整体爆炸危险的物质和物品；",
-                            type: "original", category: 1,
-                            children: [{ name: "【对应】炮弹、火箭弹、手榴弹、照明弹", type: "supplement", category: 1 }]
-                        },
-                        {
-                            name: "1.3项 有燃烧危险并有局部爆炸危险或局部迸射危险或这两种危险都有，但无整体爆炸危险的物质和物品；",
-                            type: "original", category: 1,
-                            children: [
-                                { name: "【对应】火箭推进剂、烟火物质、闪光粉", type: "supplement", category: 1 },
-                                { name: "【归纳】1.3C、1.3G仅限货机运输", type: "supplement", category: 1 }
-                            ]
-                        },
-                        {
-                            name: "1.4项 不呈现重大危险的物质和物品；",
-                            type: "original", category: 1,
-                            children: [
-                                { name: "【对应】安全导火索、烟花爆竹（小量）、演习用手榴弹", type: "supplement", category: 1 },
-                                { name: "【归纳】1.4F禁止运输", type: "supplement", category: 1 },
-                                { name: "【归纳】1.4B、1.4C、1.4D、1.4E、1.4G仅限货机运输", type: "supplement", category: 1 },
-                                { name: "【归纳】1.4S可以用客机或货机运输", type: "supplement", category: 1 }
-                            ]
-                        },
-                        {
-                            name: "1.5项 有整体爆炸危险的非常不敏感物质；",
-                            type: "original", category: 1,
-                            children: [{ name: "【对应】铵油炸药（ANFO）、乳化炸药、水胶炸药", type: "supplement", category: 1 }]
-                        },
-                        {
-                            name: "1.6项 无整体爆炸危险的极端不敏感物品。",
-                            type: "original", category: 1,
-                            children: [{ name: "【对应】某些军用弹药、经过特殊包装的爆炸物", type: "supplement", category: 1 }]
-                        }
+                        { name: "1.1项 有整体爆炸危险性的物质和物品；", type: "original", category: 1, children: [{ name: "【对应】TNT炸药、硝化甘油、雷管、爆破用电雷管", type: "supplement", category: 1 }] },
+                        { name: "1.2项 有迸射危险，但无整体爆炸危险的物质和物品；", type: "original", category: 1, children: [{ name: "【对应】炮弹、火箭弹、手榴弹、照明弹", type: "supplement", category: 1 }] },
+                        { name: "1.3项 有燃烧危险并有局部爆炸危险或局部迸射危险或这两种危险都有，但无整体爆炸危险的物质和物品；", type: "original", category: 1, children: [{ name: "【对应】火箭推进剂、烟火物质、闪光粉", type: "supplement", category: 1 }, { name: "【归纳】1.3C、1.3G仅限货机运输", type: "supplement", category: 1 }] },
+                        { name: "1.4项 不呈现重大危险的物质和物品；", type: "original", category: 1, children: [{ name: "【对应】安全导火索、烟花爆竹（小量）、演习用手榴弹", type: "supplement", category: 1 }, { name: "【归纳】1.4F禁止运输", type: "supplement", category: 1 }, { name: "【归纳】1.4B、1.4C、1.4D、1.4E、1.4G仅限货机运输", type: "supplement", category: 1 }, { name: "【归纳】1.4S可以用客机或货机运输", type: "supplement", category: 1 }] },
+                        { name: "1.5项 有整体爆炸危险的非常不敏感物质；", type: "original", category: 1, children: [{ name: "【对应】铵油炸药（ANFO）、乳化炸药、水胶炸药", type: "supplement", category: 1 }] },
+                        { name: "1.6项 无整体爆炸危险的极端不敏感物品。", type: "original", category: 1, children: [{ name: "【对应】某些军用弹药、经过特殊包装的爆炸物", type: "supplement", category: 1 }] }
                     ]
                 },
                 {
                     name: "第2类 气体",
                     type: "category", category: 2,
                     children: [
-                        {
-                            name: "2.1项 易燃气体；", type: "original", category: 2,
-                            children: [
-                                { name: "【对应】氢气、甲烷、乙烷、丙烷、丁烷、液化石油气(LPG)", type: "supplement", category: 2 },
-                                { name: "【归纳】遇火即燃，与空气混合易爆炸", type: "supplement", category: 2 }
-                            ]
-                        },
-                        {
-                            name: "2.2项 非易燃无毒气体；", type: "original", category: 2,
-                            children: [
-                                { name: "【对应】氮气、氧气、二氧化碳、氦气、氩气、压缩空气", type: "supplement", category: 2 },
-                                { name: "【归纳】窒息性风险（高浓度）、物理爆炸风险", type: "supplement", category: 2 }
-                            ]
-                        },
-                        {
-                            name: "2.3项 毒性气体。", type: "original", category: 2,
-                            children: [
-                                { name: "【对应】氯气、氨气、一氧化碳、光气、硫化氢、二氧化硫", type: "supplement", category: 2 },
-                                { name: "【归纳】LC50≤5000ml/m³，吸入致死", type: "supplement", category: 2 }
-                            ]
-                        }
+                        { name: "2.1项 易燃气体；", type: "original", category: 2, children: [{ name: "【对应】氢气、甲烷、乙烷、丙烷、丁烷、液化石油气(LPG)", type: "supplement", category: 2 }, { name: "【归纳】遇火即燃，与空气混合易爆炸", type: "supplement", category: 2 }] },
+                        { name: "2.2项 非易燃无毒气体；", type: "original", category: 2, children: [{ name: "【对应】氮气、氧气、二氧化碳、氦气、氩气、压缩空气", type: "supplement", category: 2 }, { name: "【归纳】窒息性风险（高浓度）、物理爆炸风险", type: "supplement", category: 2 }] },
+                        { name: "2.3项 毒性气体。", type: "original", category: 2, children: [{ name: "【对应】氯气、氨气、一氧化碳、光气、硫化氢、二氧化硫", type: "supplement", category: 2 }, { name: "【归纳】LC50≤5000ml/m³，吸入致死", type: "supplement", category: 2 }] }
                     ]
                 },
                 {
                     name: "第3类 易燃液体",
                     type: "category", category: 3,
                     children: [
-                        {
-                            name: "闭杯闪点≤60℃的液体、液体混合物或含有处于悬浮状态的固体或者液体；",
-                            type: "original", category: 3,
-                            children: [
-                                { name: "【对应】汽油、柴油、煤油、酒精（乙醇）、甲醇、油漆、指甲油、稀料", type: "supplement", category: 3 },
-                                { name: "【归纳】闪点越低越危险（汽油-43℃）", type: "supplement", category: 3 },
-                                { name: "【归纳】常见：燃料、溶剂、涂料、香精", type: "supplement", category: 3 }
-                            ]
-                        }
+                        { name: "闭杯闪点≤60℃的液体、液体混合物或含有处于悬浮状态的固体或者液体；", type: "original", category: 3, children: [{ name: "【对应】汽油、柴油、煤油、酒精（乙醇）、甲醇、油漆、指甲油、稀料", type: "supplement", category: 3 }, { name: "【归纳】闪点越低越危险（汽油-43℃）", type: "supplement", category: 3 }, { name: "【归纳】常见：燃料、溶剂、涂料、香精", type: "supplement", category: 3 }] }
                     ]
                 },
                 {
                     name: "第4类 易燃固体、易于自燃的物质、遇水放出易燃气体的物质",
                     type: "category", category: 4,
                     children: [
-                        {
-                            name: "4.1项 易燃固体、自反应物质和固态退敏爆炸品；", type: "original", category: 4,
-                            children: [
-                                { name: "【对应】硫磺、红磷、黄磷、火柴、硝化纤维片、赛璐珞", type: "supplement", category: 4 },
-                                { name: "【归纳】燃点低，摩擦/受热易着火", type: "supplement", category: 4 }
-                            ]
-                        },
-                        {
-                            name: "4.2项 易于自燃的物质；", type: "original", category: 4,
-                            children: [
-                                { name: "【对应】白磷、黄磷、油纸、油布、金属钠（细粉）、活性炭", type: "supplement", category: 4 },
-                                { name: "【归纳】自燃点低，空气中自发着火（白磷30℃）", type: "supplement", category: 4 }
-                            ]
-                        },
-                        {
-                            name: "4.3项 遇水放出易燃气体的物质。", type: "original", category: 4,
-                            children: [
-                                { name: "【对应】钠、钾、锂、钙、电石（碳化钙）、镁铝粉、锌粉", type: "supplement", category: 4 },
-                                { name: "【归纳】遇水反应生成氢气，可能自燃或爆炸", type: "supplement", category: 4 },
-                                { name: "【归纳】严禁用水灭火，用干燥沙土", type: "supplement", category: 4 }
-                            ]
-                        }
+                        { name: "4.1项 易燃固体、自反应物质和固态退敏爆炸品；", type: "original", category: 4, children: [{ name: "【对应】硫磺、红磷、黄磷、火柴、硝化纤维片、赛璐珞", type: "supplement", category: 4 }, { name: "【归纳】燃点低，摩擦/受热易着火", type: "supplement", category: 4 }] },
+                        { name: "4.2项 易于自燃的物质；", type: "original", category: 4, children: [{ name: "【对应】白磷、黄磷、油纸、油布、金属钠（细粉）、活性炭", type: "supplement", category: 4 }, { name: "【归纳】自燃点低，空气中自发着火（白磷30℃）", type: "supplement", category: 4 }] },
+                        { name: "4.3项 遇水放出易燃气体的物质。", type: "original", category: 4, children: [{ name: "【对应】钠、钾、锂、钙、电石（碳化钙）、镁铝粉、锌粉", type: "supplement", category: 4 }, { name: "【归纳】遇水反应生成氢气，可能自燃或爆炸", type: "supplement", category: 4 }, { name: "【归纳】严禁用水灭火，用干燥沙土", type: "supplement", category: 4 }] }
                     ]
                 },
                 {
                     name: "第5类 氧化性物质和有机过氧化物",
                     type: "category", category: 5,
                     children: [
-                        {
-                            name: "5.1项 氧化性物质；", type: "original", category: 5,
-                            children: [
-                                { name: "【对应】高锰酸钾、氯酸钾、硝酸钾、过氧化钠、漂白粉、双氧水（高浓度）", type: "supplement", category: 5 },
-                                { name: "【归纳】本身不燃，但助燃（释放氧）", type: "supplement", category: 5 },
-                                { name: "【归纳】与可燃物混合易形成爆炸性混合物", type: "supplement", category: 5 }
-                            ]
-                        },
-                        {
-                            name: "5.2项 有机过氧化物。", type: "original", category: 5,
-                            children: [
-                                { name: "【对应】过氧化苯甲酰、过氧化甲乙酮、过氧乙酸、DCP", type: "supplement", category: 5 },
-                                { name: "【归纳】热不稳定，易分解爆炸", type: "supplement", category: 5 },
-                                { name: "【归纳】对温度敏感，需冷藏运输", type: "supplement", category: 5 }
-                            ]
-                        }
+                        { name: "5.1项 氧化性物质；", type: "original", category: 5, children: [{ name: "【对应】高锰酸钾、氯酸钾、硝酸钾、过氧化钠、漂白粉、双氧水（高浓度）", type: "supplement", category: 5 }, { name: "【归纳】本身不燃，但助燃（释放氧）", type: "supplement", category: 5 }, { name: "【归纳】与可燃物混合易形成爆炸性混合物", type: "supplement", category: 5 }] },
+                        { name: "5.2项 有机过氧化物。", type: "original", category: 5, children: [{ name: "【对应】过氧化苯甲酰、过氧化甲乙酮、过氧乙酸、DCP", type: "supplement", category: 5 }, { name: "【归纳】热不稳定，易分解爆炸", type: "supplement", category: 5 }, { name: "【归纳】对温度敏感，需冷藏运输", type: "supplement", category: 5 }] }
                     ]
                 },
                 {
                     name: "第6类 毒性物质和感染性物质",
                     type: "category", category: 6,
                     children: [
-                        {
-                            name: "6.1项 毒性物质；", type: "original", category: 6,
-                            children: [
-                                { name: "【对应】氰化钠、氰化钾、砷化物、农药（敌敌畏、乐果）、鼠药、汞化合物", type: "supplement", category: 6 },
-                                { name: "【归纳】LD50≤50mg/kg（口服），经口/皮肤/吸入中毒", type: "supplement", category: 6 },
-                                { name: "【归纳】分为包装类I（极毒）、II（剧毒）、III（有毒）", type: "supplement", category: 6 }
-                            ]
-                        },
-                        {
-                            name: "6.2项 感染性物质。", type: "original", category: 6,
-                            children: [
-                                { name: "【对应】病毒样本（新冠、埃博拉）、细菌培养物、病理标本、疫苗（活毒）", type: "supplement", category: 6 },
-                                { name: "【归纳】含有已知或可疑病原体，生物安全等级BSL-2/3/4", type: "supplement", category: 6 }
-                            ]
-                        }
+                        { name: "6.1项 毒性物质；", type: "original", category: 6, children: [{ name: "【对应】氰化钠、氰化钾、砷化物、农药（敌敌畏、乐果）、鼠药、汞化合物", type: "supplement", category: 6 }, { name: "【归纳】LD50≤50mg/kg（口服），经口/皮肤/吸入中毒", type: "supplement", category: 6 }, { name: "【归纳】分为包装类I（极毒）、II（剧毒）、III（有毒）", type: "supplement", category: 6 }] },
+                        { name: "6.2项 感染性物质。", type: "original", category: 6, children: [{ name: "【对应】病毒样本（新冠、埃博拉）、细菌培养物、病理标本、疫苗（活毒）", type: "supplement", category: 6 }, { name: "【归纳】含有已知或可疑病原体，生物安全等级BSL-2/3/4", type: "supplement", category: 6 }] }
                     ]
                 },
                 {
                     name: "第7类 放射性物质",
                     type: "category", category: 7,
                     children: [
-                        {
-                            name: "放射性比活度>70kBq/kg的物质；", type: "original", category: 7,
-                            children: [
-                                { name: "【对应】铀-235、钚-239、钴-60、铯-137、医用同位素（碘-131、锝-99m）", type: "supplement", category: 7 },
-                                { name: "【归纳】分为I类（白）、II类（黄）、III类（黄）包装", type: "supplement", category: 7 },
-                                { name: "【归纳】运输指数TI决定隔离距离", type: "supplement", category: 7 }
-                            ]
-                        }
+                        { name: "放射性比活度>70kBq/kg的物质；", type: "original", category: 7, children: [{ name: "【对应】铀-235、钚-239、钴-60、铯-137、医用同位素（碘-131、锝-99m）", type: "supplement", category: 7 }, { name: "【归纳】分为I类（白）、II类（黄）、III类（黄）包装", type: "supplement", category: 7 }, { name: "【归纳】运输指数TI决定隔离距离", type: "supplement", category: 7 }] }
                     ]
                 },
                 {
                     name: "第8类 腐蚀性物质",
                     type: "category", category: 8,
                     children: [
-                        {
-                            name: "会灼伤皮肤/损坏金属的物质；", type: "original", category: 8,
-                            children: [
-                                { name: "【对应】硫酸、盐酸、硝酸、氢氧化钠（烧碱）、氢氧化钾、水银（汞）、电池液", type: "supplement", category: 8 },
-                                { name: "【归纳】酸性（pH<2）或碱性（pH>11.5）", type: "supplement", category: 8 },
-                                { name: "【归纳】严重皮肤灼伤（3分钟可见坏死）", type: "supplement", category: 8 }
-                            ]
-                        }
+                        { name: "会灼伤皮肤/损坏金属的物质；", type: "original", category: 8, children: [{ name: "【对应】硫酸、盐酸、硝酸、氢氧化钠（烧碱）、氢氧化钾、水银（汞）、电池液", type: "supplement", category: 8 }, { name: "【归纳】酸性（pH<2）或碱性（pH>11.5）", type: "supplement", category: 8 }, { name: "【归纳】严重皮肤灼伤（3分钟可见坏死）", type: "supplement", category: 8 }] }
                     ]
                 },
                 {
                     name: "第9类 杂项危险物质和物品",
                     type: "category", category: 9,
                     children: [
-                        {
-                            name: "其他类别未包括的危险品；", type: "original", category: 9,
-                            children: [
-                                { name: "【对应】锂电池（锂离子电池）、干冰（固体CO2）、磁性物质、石棉、环境危害物质", type: "supplement", category: 9 },
-                                { name: "【归纳】航空运输中数量最多的危险品类别", type: "supplement", category: 9 },
-                                { name: "【归纳】锂电池：PI965-970包装说明，荷电状态≤30%", type: "supplement", category: 9 }
-                            ]
-                        }
+                        { name: "其他类别未包括的危险品；", type: "original", category: 9, children: [{ name: "【对应】锂电池（锂离子电池）、干冰（固体CO2）、磁性物质、石棉、环境危害物质", type: "supplement", category: 9 }, { name: "【归纳】航空运输中数量最多的危险品类别", type: "supplement", category: 9 }, { name: "【归纳】锂电池：PI965-970包装说明，荷电状态≤30%", type: "supplement", category: 9 }] }
                     ]
                 }
             ]
@@ -457,7 +347,7 @@
         function initTree() {
             const container = document.getElementById("tree");
             const width = container.clientWidth;
-            const height = 3500;
+            const height = 4000;
             
             const svg = d3.select("#tree").append("svg")
                 .attr("width", "100%")
@@ -466,16 +356,13 @@
             
             const g = svg.append("g");
             
-            // 关键修改1：使用nodeSize替代size，实现紧凑布局
-            // [垂直间距, 水平间距] - 减小水平间距到220
-            const tree = d3.tree().nodeSize([32, 220]);
+            const tree = d3.tree().nodeSize([50, 240]);
             
             const root = d3.hierarchy(treeData);
             tree(root);
             
-            // 居中显示
-            const offsetX = 80;
-            const offsetY = 60;
+            const offsetX = 100;
+            const offsetY = 80;
             
             g.attr("transform", `translate(${offsetX},${offsetY})`);
             
@@ -499,11 +386,7 @@
                 .attr("transform", d => `translate(${d.y},${d.x})`);
             
             node.append("circle")
-                .attr("r", d => {
-                    if (d.data.type === "root") return 12;
-                    if (d.data.type === "category") return 9;
-                    return 5;
-                })
+                .attr("r", d => d.data.type === "root" ? 12 : d.data.type === "category" ? 9 : 5)
                 .attr("fill", d => {
                     if (d.data.type === "root") return "#2c3e50";
                     if (d.data.category) return colors[d.data.category];
@@ -511,20 +394,24 @@
                     return "#95a5a6";
                 });
             
-            // 关键修改2：减小文字偏移量，从18改为10/12
-            node.append("text")
-                .attr("dy", "0.31em")
-                .attr("x", d => d.children ? -10 : 12)
-                .attr("text-anchor", d => d.children ? "end" : "start")
-                .text(d => d.data.name)
-                .attr("fill", d => {
-                    if (d.data.type === "supplement") return "#3498db";
-                    if (d.data.type === "original") return "#2ecc71";
-                    return "white";
-                })
-                .attr("class", d => d.data.type === "supplement" ? "supplement-content" : "")
-                .style("font-weight", d => d.data.type === "category" ? "bold" : "normal")
-                .style("font-size", d => d.data.type === "category" ? "14px" : "12px");
+            node.each(function(d) {
+                const text = d3.select(this).append("text")
+                    .attr("dy", "0.31em")
+                    .attr("x", d.children ? -12 : 12)
+                    .attr("text-anchor", d.children ? "end" : "start")
+                    .style("font-weight", d.data.type === "category" ? "bold" : "normal")
+                    .style("font-size", d.data.type === "category" ? "13px" : "11px")
+                    .style("fill", d.data.type === "supplement" ? "#3498db" : d.data.type === "original" ? "#2ecc71" : "white")
+                    .attr("class", d.data.type === "supplement" ? "supplement-content" : "");
+                
+                const lines = wrapText(d.data.name, 28);
+                lines.forEach((line, i) => {
+                    text.append("tspan")
+                        .attr("x", d.children ? -12 : 12)
+                        .attr("dy", i === 0 ? "0.31em" : "1.2em")
+                        .text(line);
+                });
+            });
             
             const zoom = d3.zoom()
                 .scaleExtent([0.4, 2])
@@ -533,51 +420,41 @@
                 });
             
             svg.call(zoom);
-            // 关键修改3：提高初始缩放比例到0.85，使内容更紧凑
-            svg.call(zoom.transform, d3.zoomIdentity.scale(0.85));
+            svg.call(zoom.transform, d3.zoomIdentity.scale(0.8));
         }
         
         let reciteMode = false;
         function toggleReciteMode() {
             reciteMode = !reciteMode;
             document.body.classList.toggle("recite-mode", reciteMode);
-            const btn = document.querySelector(".btn-secondary");
-            btn.textContent = reciteMode ? "👁️ 显示答案" : "🎯 切换模式";
+            document.querySelector(".btn-secondary").textContent = reciteMode ? "👁️ 显示答案" : "🎯 切换模式";
         }
         
         function exportImage() {
             const hint = document.getElementById("exportHint");
             hint.style.display = "block";
-            
             const svg = document.querySelector("svg");
             const svgData = new XMLSerializer().serializeToString(svg);
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
             const img = new Image();
-            
             img.onload = function() {
                 canvas.width = img.width * 2;
                 canvas.height = img.height * 2;
                 ctx.fillStyle = "#1a1a2e";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
                 const link = document.createElement("a");
-                link.download = "危险品分类思维导图_" + new Date().getTime() + ".png";
+                link.download = "危险品分类_" + new Date().getTime() + ".png";
                 link.href = canvas.toDataURL();
                 link.click();
-                
                 hint.style.display = "none";
             };
-            
             img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
         }
         
         window.onload = initTree;
-        window.onresize = () => {
-            document.getElementById("tree").innerHTML = "";
-            initTree();
-        };
+        window.onresize = () => { document.getElementById("tree").innerHTML = ""; initTree(); };
     </script>
 </body>
 </html>
