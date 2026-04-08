@@ -3,358 +3,663 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>危险品分类</title>
+    <title>危险品分类思维导图</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:linear-gradient(135deg,#1a202c 0%,#2d3748 100%);width:100vw;height:100vh;overflow:hidden;color:#fff;-webkit-text-size-adjust:100%}
-        .header{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.95);display:flex;align-items:center;justify-content:space-between;padding:0 15px;z-index:1000;border-bottom:3px solid #667eea}
-        .main-title{font-size:18px;font-weight:900;color:#2d3748}
-        .controls{display:flex;gap:8px}
-        .btn{padding:8px 12px;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.3s}
-        .btn-mode{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white}
-        .btn-recite{background:linear-gradient(135deg,#ed8936 0%,#dd6b20 100%);color:white}
-        .mnemonic-bar{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff6b6b 0%,#ee5a6f 100%);color:white;padding:8px 15px;border-radius:30px;font-size:14px;font-weight:900;z-index:999;letter-spacing:2px;text-align:center;white-space:nowrap;max-width:95%}
-        #chart{width:100%;height:100%;padding-top:110px;overflow:auto;-webkit-overflow-scrolling:touch}
-        .node circle{fill:#fff;stroke-width:3px;cursor:pointer;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))}
-        .link{fill:none;stroke:rgba(255,255,255,0.4);stroke-width:2px;stroke-linecap:round}
-        .c1{stroke:#ff6b6b}.c2{stroke:#4facfe}.c3{stroke:#f093fb}.c4{stroke:#fa709a}.c5{stroke:#feca57}.c6{stroke:#a29bfe}.c7{stroke:#00d2d3}.c8{stroke:#54a0ff}.c9{stroke:#8395a7}.root{stroke:#fff}.mnemonic{stroke:#ff9ff3}
-        .label-original{fill:#48bb78!important;font-weight:900!important}
-        .label-supplement{fill:#63b3ed!important;font-style:italic;font-weight:500!important}
-        .node text{pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
-        .side-panel{display:none}
-        .tooltip{position:absolute;background:rgba(0,0,0,0.95);color:white;padding:10px;border-radius:8px;font-size:12px;max-width:250px;pointer-events:none;opacity:0;transition:opacity 0.3s;z-index:2000;border-left:4px solid #667eea;line-height:1.5;box-shadow:0 5px 15px rgba(0,0,0,0.5)}
-        
-        /* 电脑端样式 */
-        @media (min-width:769px){
-            .header{height:70px;padding:0 30px}
-            .main-title{font-size:24px}
-            .btn{padding:10px 20px;font-size:13px}
-            .mnemonic-bar{top:85px;padding:12px 30px;font-size:18px;border-radius:50px}
-            #chart{padding-top:140px}
-            .node circle{stroke-width:4px;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.3))}
-            .link{stroke-width:3px}
-            .side-panel{display:block;position:fixed;right:20px;top:140px;width:260px;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.3);z-index:100;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
-            .panel-title{font-size:16px;font-weight:900;color:#e53e3e;margin-bottom:15px;display:flex;align-items:center;gap:8px;border-bottom:2px solid #fed7d7;padding-bottom:10px}
-            .warning-item{background:#fff5f5;border-left:4px solid #fc8181;padding:10px 12px;margin:8px 0;border-radius:0 8px 8px 0;font-size:13px;color:#c53030;line-height:1.5;font-weight:600}
-            .legend-title{font-size:14px;font-weight:900;color:#2d3748;margin:15px 0 10px 0}
-            .legend-item{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:12px;color:#4a5568;font-weight:600}
-            .legend-color{width:14px;height:14px;border-radius:3px}
-            .tag-note{font-size:11px;color:#718096;margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
         
-        /* 手机端横向滚动提示 */
-        .scroll-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:white;padding:8px 16px;border-radius:20px;font-size:12px;z-index:999;display:none}
-        @media (max-width:768px){.scroll-hint{display:block}}
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 12px 16px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        
+        .mnemonic-banner {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+            background-size: 200% 200%;
+            animation: gradient 5s ease infinite;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 999;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            margin-top: 120px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            min-height: calc(100vh - 120px);
+        }
+        
+        .tree-container {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            overflow: auto;
+            min-height: 800px;
+        }
+        
+        .sidebar {
+            width: 340px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 20px;
+            position: sticky;
+            top: 140px;
+            height: fit-content;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .tips-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #e0e0e0;
+        }
+        
+        .tip-item {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .tip-item.transport-summary {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+        
+        .node circle {
+            cursor: pointer;
+            stroke-width: 3px;
+            stroke: white;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .node text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .link {
+            fill: none;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+        
+        body.recite-mode .supplement-content {
+            opacity: 0;
+            filter: blur(5px);
+            transition: all 0.3s;
+        }
+        
+        body.recite-mode .supplement-content:hover {
+            opacity: 1;
+            filter: blur(0);
+        }
+        
+        @media (max-width: 968px) {
+            .container { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                max-height: none;
+            }
+            .header h1 { font-size: 16px; }
+            .btn { padding: 6px 12px; font-size: 12px; }
+        }
+        
+        @media (max-width: 480px) {
+            .mnemonic-banner { font-size: 14px; padding: 10px 5px; }
+            .node text { font-size: 12px; }
+        }
+        
+        .export-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 1001;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="main-title">🎯 危险品分类</div>
-        <div class="controls">
-            <button class="btn btn-mode" onclick="toggleMode()">切换</button>
-            <button class="btn btn-recite" onclick="toggleRecite()">背诵</button>
+        <h1>🧪 危险品分类</h1>
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="toggleReciteMode()">🎯 切换模式</button>
+            <button class="btn btn-primary" onclick="exportImage()">📥 导出图片</button>
         </div>
     </div>
-    <div class="mnemonic-bar">爆气液固氧毒放腐杂 | 1爆2气3液4固5氧6毒7放8腐9杂</div>
     
-    <div class="side-panel">
-        <div class="panel-title">⚠️ 重点注意</div>
-        <div class="warning-item"><strong>1.4F</strong> 禁止运输</div>
-        <div class="warning-item"><strong>1.3C、1.3G</strong> 仅限货机</div>
-        <div class="warning-item"><strong>1.4B、1.4C、1.4D、1.4E、1.4G</strong> 仅限货机</div>
-        <div class="warning-item"><strong>1.4S</strong> 客货机均可</div>
-        <div class="legend-title">📊 颜色对照</div>
-        <div class="legend-item"><div class="legend-color" style="background:#ff6b6b"></div>爆炸品</div>
-        <div class="legend-item"><div class="legend-color" style="background:#4facfe"></div>气体</div>
-        <div class="legend-item"><div class="legend-color" style="background:#f093fb"></div>易燃液体</div>
-        <div class="legend-item"><div class="legend-color" style="background:#fa709a"></div>易燃固体</div>
-        <div class="legend-item"><div class="legend-color" style="background:#feca57"></div>氧化性</div>
-        <div class="legend-item"><div class="legend-color" style="background:#a29bfe"></div>毒性</div>
-        <div class="legend-item"><div class="legend-color" style="background:#00d2d3"></div>放射性</div>
-        <div class="legend-item"><div class="legend-color" style="background:#54a0ff"></div>腐蚀性</div>
-        <div class="legend-item"><div class="legend-color" style="background:#8395a7"></div>杂项</div>
-        <div class="tag-note"><span style="color:#48bb78">●</span>绿色=原文 <span style="color:#63b3ed">●</span>蓝色=补充</div>
+    <div class="mnemonic-banner">
+        🔥 爆气液固氧毒放腐杂 | 1爆2气3液4固5氧6毒7放8腐9杂 🔥
     </div>
     
-    <div class="scroll-hint">👈 左右滑动查看完整内容 👉</div>
-    <div id="chart"></div>
-    <div class="tooltip" id="tooltip"></div>
+    <div class="container">
+        <div class="tree-container" id="tree"></div>
+        
+        <div class="sidebar">
+            <h3>📊 类别颜色对照</h3>
+            <div class="legend-item"><div class="legend-color" style="background:#e74c3c"></div><span>第1类 爆炸品</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#3498db"></div><span>第2类 气体</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#e84393"></div><span>第3类 易燃液体</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#fd79a8"></div><span>第4类 易燃固体</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#f39c12"></div><span>第5类 氧化性</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#9b59b6"></div><span>第6类 毒性</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#00cec9"></div><span>第7类 放射性</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#0984e3"></div><span>第8类 腐蚀性</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#636e72"></div><span>第9类 杂项</span></div>
+            
+            <div style="margin-top:15px;padding:10px;background:#f8f9fa;border-radius:8px;font-size:12px;">
+                <div>🟢 <span style="color:#2ecc71;font-weight:600">绿色 = 原文（一字未改）</span></div>
+                <div style="margin-top:5px">🔵 <span style="color:#3498db;font-weight:600">蓝色 = 【对应/归纳】</span></div>
+            </div>
+            
+            <div class="tips-section">
+                <h3>⚠️ 运输限制归纳</h3>
+                <div class="tip-item transport-summary">
+                    <strong>【1.4项总结】</strong><br>
+                    F = 禁止运输<br>
+                    B/C/D/E/G = 仅限货机<br>
+                    S = 客机/货机均可
+                </div>
+                <div class="tip-item transport-summary">
+                    <strong>【1.3项总结】</strong><br>
+                    C、G = 仅限货机
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="export-hint" id="exportHint">正在生成图片...</div>
 
     <script>
-        // 检测是否为手机端
-        const isMobile = window.innerWidth <= 768;
+        const colors = {
+            1: "#e74c3c", 2: "#3498db", 3: "#e84393", 4: "#fd79a8",
+            5: "#f39c12", 6: "#9b59b6", 7: "#00cec9", 8: "#0984e3", 9: "#636e72"
+        };
         
-        // 简化版文本处理（强制换行）
-        function formatText(text, isMobile) {
-            if (!text) return [];
-            const maxLen = isMobile ? 12 : 22;
-            if (text.length <= maxLen) return [text];
-            
-            const lines = [];
-            for (let i = 0; i < text.length; i += maxLen) {
-                lines.push(text.substring(i, i + maxLen));
-            }
-            return lines;
-        }
-
-        const treeData={name:"危险品的分类",class:"root",isOriginal:true,children:[{name:"记忆口诀",class:"mnemonic",isOriginal:true,children:[{name:"爆气液固氧毒放腐杂",class:"mnemonic",isOriginal:true},{name:"1爆2气3液4固5氧6毒7放8腐9杂",class:"mnemonic",isOriginal:true}]},{name:"第1类 爆炸品",class:"c1",isOriginal:true,children:[{name:"1.1项 有整体爆炸危险性的物质和物品；",class:"c1",isOriginal:true},{name:"1.2项 有迸射危险，但无整体爆炸危险的物质和物品；",class:"c1",isOriginal:true},{name:"1.3项 有燃烧危险并有局部爆炸危险或局部迸射危险或这两种危险都有，但无整体爆炸危险的物质和物品；（1.3C、1.3G仅限货机运输）",class:"c1",isOriginal:true,note:"1.3C、1.3G仅限货机运输"},{name:"1.4项 不呈现重大危险的物质和物品；（1.4F禁止运输，1.4B、1.4C、1.4D、1.4E、1.4G仅限货机运输，1.4S可以用客机或货机运输）",class:"c1",isOriginal:true,note:"1.4F禁止运输；1.4B/C/D/E/G仅限货机；1.4S客货机均可"},{name:"1.5项 有整体爆炸危险的非常不敏感物质；",class:"c1",isOriginal:true},{name:"1.6项 无整体爆炸危险的极端不敏感物品。",class:"c1",isOriginal:true},{name:"【对应物品】TNT、雷管、C4炸药、烟花爆竹",class:"c1",isOriginal:false,isSupplement:true}]},{name:"第2类 气体",class:"c2",isOriginal:true,children:[{name:"2.1项 易燃气体；",class:"c2",isOriginal:true},{name:"2.2项 非易燃无毒气体；",class:"c2",isOriginal:true,note:"高压窒息风险",children:[{name:"【对应物品】氮气、氦气、二氧化碳、灭火器、氧气瓶",class:"c2",isOriginal:false,isSupplement:true,highlight:"虽无毒，但高压+窒息风险"}]},{name:"2.3项 毒性气体。",class:"c2",isOriginal:true},{name:"【对应物品】氯气、氨气、一氧化碳、光气",class:"c2",isOriginal:false,isSupplement:true}]},{name:"第3类 易燃液体",class:"c3",isOriginal:true,children:[{name:"【对应物品】汽油、柴油、酒精、油漆、指甲油",class:"c3",isOriginal:false,isSupplement:true}]},{name:"第4类 易燃固体、易于自燃的物质和遇水放出易燃气体的物质",class:"c4",isOriginal:true,children:[{name:"4.1项 易燃固体、自反应物质和固态退敏爆炸品；",class:"c4",isOriginal:true},{name:"4.2项 易于自燃的物质；",class:"c4",isOriginal:true},{name:"4.3项 遇水放出易燃气体的物质。",class:"c4",isOriginal:true,note:"严禁用水灭火",children:[{name:"【对应物品】电石、金属钠、金属钾（遇水即燃）",class:"c4",isOriginal:false,isSupplement:true,highlight:"严禁用水灭火"}]},{name:"【对应物品】火柴、硫磺、白磷、油纸",class:"c4",isOriginal:false,isSupplement:true}]},{name:"第5类 氧化性物质和有机过氧化物",class:"c5",isOriginal:true,children:[{name:"5.1项 氧化性物质；",class:"c5",isOriginal:true,note:"本身不燃，但助燃",children:[{name:"【对应物品】双氧水、高锰酸钾、漂白粉、84消毒液",class:"c5",isOriginal:false,isSupplement:true,highlight:"强氧化性，助燃"}]},{name:"5.2项 有机过氧化物。",class:"c5",isOriginal:true},{name:"【对应物品】过乙酸、过氧化苯甲酰",class:"c5",isOriginal:false,isSupplement:true}]},{name:"第6类 毒性物质和感染性物质",class:"c6",isOriginal:true,children:[{name:"6.1项 毒性物质；",class:"c6",isOriginal:true},{name:"6.2项 感染性物质。",class:"c6",isOriginal:true},{name:"【对应物品】砒霜、氰化钠、农药、水银",class:"c6",isOriginal:false,isSupplement:true}]},{name:"第7类 放射性物质",class:"c7",isOriginal:true,children:[{name:"【对应物品】钴-60、铀、镭、医用同位素",class:"c7",isOriginal:false,isSupplement:true}]},{name:"第8类 腐蚀性物质",class:"c8",isOriginal:true,children:[{name:"【对应物品】硫酸、盐酸、烧碱、电池液",class:"c8",isOriginal:false,isSupplement:true}]},{name:"第9类 杂项危险物质和物品，包括危害环境物质",class:"c9",isOriginal:true,children:[{name:"【对应物品】锂电池、干冰、强力磁铁",class:"c9",isOriginal:false,isSupplement:true}]}]};
-
-        let showSupplements = true;
-        let reciteMode = false;
-        
-        const container = document.getElementById('chart');
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        
-        // 手机端减小画布尺寸
-        const svgWidth = isMobile ? width * 4 : width * 2.5;
-        const svgHeight = isMobile ? height * 1.5 : height * 1.2;
-        
-        const svg = d3.select("#chart").append("svg")
-            .attr("width", svgWidth)
-            .attr("height", svgHeight)
-            .call(d3.zoom().on("zoom", (event) => {
-                g.attr("transform", event.transform);
-            }));
-        
-        const g = svg.append("g")
-            .attr("transform", `translate(${isMobile ? 80 : width/8}, ${height/2})`);
-        
-        let i = 0;
-        const duration = 600;
-        let root;
-        
-        // 手机端减小节点间距
-        const nodeSpacing = isMobile ? 280 : 400;
-        const tree = d3.tree().size([height * (isMobile ? 1.5 : 1.2), svgWidth * 0.8]);
-        
-        root = d3.hierarchy(treeData, d => d.children);
-        root.x0 = height / 2;
-        root.y0 = 0;
-        
-        // 初始折叠详细内容
-        root.children.forEach((d, index) => {
-            if (d.children) {
-                d.children.forEach(child => {
-                    if (child.children && child.children.length > 0) {
-                        child._children = child.children;
-                        child.children = null;
-                    }
-                });
-            }
-        });
-        
-        update(root);
-        centerNode(root);
-
-        function collapse(d) {
-            if (d.children) {
-                d._children = d.children;
-                d._children.forEach(collapse);
-                d.children = null;
-            }
-        }
-        
-        function expand(d) {
-            if (d._children) {
-                d.children = d._children;
-                d._children = null;
-            }
-            if (d.children) {
-                d.children.forEach(expand);
-            }
-        }
-        
-        function update(source) {
-            const treeData = tree(root);
-            let nodes = treeData.descendants();
-            const links = treeData.links();
-            
-            if (!showSupplements && !reciteMode) {
-                nodes = nodes.filter(d => d.data.isOriginal);
-            }
-            if (reciteMode) {
-                nodes = nodes.filter(d => d.depth <= 1 || d.data.isOriginal);
-            }
-            
-            nodes.forEach(d => { d.y = d.depth * nodeSpacing; });
-            
-            const node = g.selectAll('g.node').data(nodes, d => d.id || (d.id = ++i));
-            
-            const nodeEnter = node.enter().append('g')
-                .attr('class', d => d.data.isSupplement ? 'node supplement-node' : 'node')
-                .attr("transform", d => `translate(${source.y0},${source.x0})`)
-                .on('click', click)
-                .on('mouseover', showTooltip)
-                .on('mouseout', hideTooltip);
-            
-            nodeEnter.append('circle')
-                .attr('class', d => d.data.class || 'root')
-                .attr('r', 1e-6)
-                .style("fill", d => d._children ? getNodeColor(d.data.class) : "#fff")
-                .style("stroke", d => getNodeColor(d.data.class));
-            
-            // 文本处理
-            const textEnter = nodeEnter.append('text')
-                .attr("text-anchor", d => d.children || d._children ? "end" : "start")
-                .attr("class", d => d.data.isSupplement ? "label-supplement" : "label-original");
-            
-            textEnter.each(function(d) {
-                const text = d3.select(this);
-                const lines = formatText(d.data.name, isMobile);
-                const lineHeight = isMobile ? 14 : 18;
-                const fontSize = d.depth === 0 ? (isMobile ? 16 : 22) : 
-                                d.depth === 1 ? (isMobile ? 14 : 18) : 
-                                d.data.isSupplement ? (isMobile ? 10 : 11) : (isMobile ? 12 : 14);
-                
-                text.style("font-size", fontSize + "px");
-                
-                if (lines.length === 1) {
-                    text.attr("dy", ".35em")
-                        .attr("x", d => d.children || d._children ? (isMobile ? -15 : -20) : (isMobile ? 15 : 20))
-                        .text(d.data.name);
-                } else {
-                    text.attr("x", d => d.children || d._children ? (isMobile ? -15 : -20) : (isMobile ? 15 : 20));
-                    lines.forEach((line, i) => {
-                        text.append("tspan")
-                            .attr("x", d => d.children || d._children ? (isMobile ? -15 : -20) : (isMobile ? 15 : 20))
-                            .attr("dy", i === 0 ? -(lines.length - 1) * lineHeight / 2 + "px" : lineHeight + "px")
-                            .text(line);
-                    });
+        const treeData = {
+            name: "危险品的分类",
+            type: "root",
+            children: [
+                {
+                    name: "📌 记忆口诀",
+                    type: "mnemonic",
+                    children: [
+                        { name: "爆气液固氧毒放腐杂", type: "original" },
+                        { name: "1爆2气3液4固5氧6毒7放8腐9杂", type: "original" }
+                    ]
+                },
+                {
+                    name: "第1类 爆炸品",
+                    type: "category",
+                    category: 1,
+                    children: [
+                        {
+                            name: "1.1项 有整体爆炸危险性的物质和物品；",
+                            type: "original",
+                            category: 1,
+                            children: [
+                                { name: "【对应】TNT炸药、硝化甘油、雷管、爆破用电雷管", type: "supplement", category: 1 }
+                            ]
+                        },
+                        {
+                            name: "1.2项 有迸射危险，但无整体爆炸危险的物质和物品；",
+                            type: "original",
+                            category: 1,
+                            children: [
+                                { name: "【对应】炮弹、火箭弹、手榴弹、照明弹", type: "supplement", category: 1 }
+                            ]
+                        },
+                        {
+                            name: "1.3项 有燃烧危险并有局部爆炸危险或局部迸射危险或这两种危险都有，但无整体爆炸危险的物质和物品；",
+                            type: "original",
+                            category: 1,
+                            children: [
+                                { name: "【对应】火箭推进剂、烟火物质、闪光粉", type: "supplement", category: 1 },
+                                { name: "【归纳】1.3C、1.3G仅限货机运输", type: "supplement", category: 1 }
+                            ]
+                        },
+                        {
+                            name: "1.4项 不呈现重大危险的物质和物品；",
+                            type: "original",
+                            category: 1,
+                            children: [
+                                { name: "【对应】安全导火索、烟花爆竹（小量）、演习用手榴弹", type: "supplement", category: 1 },
+                                { name: "【归纳】1.4F禁止运输", type: "supplement", category: 1 },
+                                { name: "【归纳】1.4B、1.4C、1.4D、1.4E、1.4G仅限货机运输", type: "supplement", category: 1 },
+                                { name: "【归纳】1.4S可以用客机或货机运输", type: "supplement", category: 1 }
+                            ]
+                        },
+                        {
+                            name: "1.5项 有整体爆炸危险的非常不敏感物质；",
+                            type: "original",
+                            category: 1,
+                            children: [
+                                { name: "【对应】铵油炸药（ANFO）、乳化炸药、水胶炸药", type: "supplement", category: 1 }
+                            ]
+                        },
+                        {
+                            name: "1.6项 无整体爆炸危险的极端不敏感物品。",
+                            type: "original",
+                            category: 1,
+                            children: [
+                                { name: "【对应】某些军用弹药、经过特殊包装的爆炸物", type: "supplement", category: 1 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "第2类 气体",
+                    type: "category",
+                    category: 2,
+                    children: [
+                        {
+                            name: "2.1项 易燃气体；",
+                            type: "original",
+                            category: 2,
+                            children: [
+                                { name: "【对应】氢气、甲烷、乙烷、丙烷、丁烷、液化石油气(LPG)", type: "supplement", category: 2 },
+                                { name: "【归纳】遇火即燃，与空气混合易爆炸", type: "supplement", category: 2 }
+                            ]
+                        },
+                        {
+                            name: "2.2项 非易燃无毒气体；",
+                            type: "original",
+                            category: 2,
+                            children: [
+                                { name: "【对应】氮气、氧气、二氧化碳、氦气、氩气、压缩空气", type: "supplement", category: 2 },
+                                { name: "【归纳】窒息性风险（高浓度）、物理爆炸风险", type: "supplement", category: 2 }
+                            ]
+                        },
+                        {
+                            name: "2.3项 毒性气体。",
+                            type: "original",
+                            category: 2,
+                            children: [
+                                { name: "【对应】氯气、氨气、一氧化碳、光气、硫化氢、二氧化硫", type: "supplement", category: 2 },
+                                { name: "【归纳】LC50≤5000ml/m³，吸入致死", type: "supplement", category: 2 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "第3类 易燃液体",
+                    type: "category",
+                    category: 3,
+                    children: [
+                        {
+                            name: "闭杯闪点≤60℃的液体、液体混合物或含有处于悬浮状态的固体或者液体；",
+                            type: "original",
+                            category: 3,
+                            children: [
+                                { name: "【对应】汽油、柴油、煤油、酒精（乙醇）、甲醇、油漆、指甲油、稀料", type: "supplement", category: 3 },
+                                { name: "【归纳】闪点越低越危险（汽油-43℃）", type: "supplement", category: 3 },
+                                { name: "【归纳】常见：燃料、溶剂、涂料、香精", type: "supplement", category: 3 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "第4类 易燃固体、易于自燃的物质、遇水放出易燃气体的物质",
+                    type: "category",
+                    category: 4,
+                    children: [
+                        {
+                            name: "4.1项 易燃固体、自反应物质和固态退敏爆炸品；",
+                            type: "original",
+                            category: 4,
+                            children: [
+                                { name: "【对应】硫磺、红磷、黄磷、火柴、硝化纤维片、赛璐珞", type: "supplement", category: 4 },
+                                { name: "【归纳】燃点低，摩擦/受热易着火", type: "supplement", category: 4 }
+                            ]
+                        },
+                        {
+                            name: "4.2项 易于自燃的物质；",
+                            type: "original",
+                            category: 4,
+                            children: [
+                                { name: "【对应】白磷、黄磷、油纸、油布、金属钠（细粉）、活性炭", type: "supplement", category: 4 },
+                                { name: "【归纳】自燃点低，空气中自发着火（白磷30℃）", type: "supplement", category: 4 }
+                            ]
+                        },
+                        {
+                            name: "4.3项 遇水放出易燃气体的物质。",
+                            type: "original",
+                            category: 4,
+                            children: [
+                                { name: "【对应】钠、钾、锂、钙、电石（碳化钙）、镁铝粉、锌粉", type: "supplement", category: 4 },
+                                { name: "【归纳】遇水反应生成氢气，可能自燃或爆炸", type: "supplement", category: 4 },
+                                { name: "【归纳】严禁用水灭火，用干燥沙土", type: "supplement", category: 4 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "第5类 氧化性物质和有机过氧化物",
+                    type: "category",
+                    category: 5,
+                    children: [
+                        {
+                            name: "5.1项 氧化性物质；",
+                            type: "original",
+                            category: 5,
+                            children: [
+                                { name: "【对应】高锰酸钾、氯酸钾、硝酸钾、过氧化钠、漂白粉、双氧水（高浓度）", type: "supplement", category: 5 },
+                                { name: "【归纳】本身不燃，但助燃（释放氧）", type: "supplement", category: 5 },
+                                { name: "【归纳】与可燃物混合易形成爆炸性混合物", type: "supplement", category: 5 }
+                            ]
+                        },
+                        {
+                            name: "5.2项 有机过氧化物。",
+                            type: "original",
+                            category: 5,
+                            children: [
+                                { name: "【对应】过氧化苯甲酰、过氧化甲乙酮、过氧乙酸、DCP", type: "supplement", category: 5 },
+                                { name: "【归纳】热不稳定，易分解爆炸", type: "supplement", category: 5 },
+                                { name: "【归纳】对温度敏感，需冷藏运输", type: "supplement", category: 5 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "第6类 毒性物质和感染性物质",
+                    type: "category",
+                    category: 6,
+                    children: [
+                        {
+                            name: "6.1项 毒性物质；",
+                            type: "original",
+                            category: 6,
+                            children: [
+                                { name: "【对应】氰化钠、氰化钾、砷化物、农药（敌敌畏、乐果）、鼠药、汞化合物", type: "supplement", category: 6 },
+                                { name: "【归纳】LD50≤50mg/kg（口服），经口/皮肤/吸入中毒", type: "supplement", category: 6 },
+                                { name: "【归纳】分为包装类I（极毒）、II（剧毒）、III（有毒）", type: "supplement", category: 6 }
+                            ]
+                        },
+                        {
+                            name: "6.2项 感染性物质。",
+                            type: "original",
+                            category: 6,
+                            children: [
+                                { name: "【对应】病毒样本（新冠、埃博拉）、细菌培养物、病理标本、疫苗（活毒）", type: "supplement", category: 6 },
+                                { name: "【归纳】含有已知或可疑病原体，生物安全等级BSL-2/3/4", type: "supplement", category: 6 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "第7类 放射性物质",
+                    type: "category",
+                    category: 7,
+                    children: [
+                        {
+                            name: "放射性比活度>70kBq/kg的物质；",
+                            type: "original",
+                            category: 7,
+                            children: [
+                                { name: "【对应】铀-235、钚-239、钴-60、铯-137、医用同位素（碘-131、锝-99m）", type: "supplement", category: 7 },
+                                { name: "【归纳】分为I类（白）、II类（黄）、III类（黄）包装", type: "supplement", category: 7 },
+                                { name: "【归纳】运输指数TI决定隔离距离", type: "supplement", category: 7 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "第8类 腐蚀性物质",
+                    type: "category",
+                    category: 8,
+                    children: [
+                        {
+                            name: "会灼伤皮肤/损坏金属的物质；",
+                            type: "original",
+                            category: 8,
+                            children: [
+                                { name: "【对应】硫酸、盐酸、硝酸、氢氧化钠（烧碱）、氢氧化钾、水银（汞）、电池液", type: "supplement", category: 8 },
+                                { name: "【归纳】酸性（pH<2）或碱性（pH>11.5）", type: "supplement", category: 8 },
+                                { name: "【归纳】严重皮肤灼伤（3分钟可见坏死）", type: "supplement", category: 8 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "第9类 杂项危险物质和物品",
+                    type: "category",
+                    category: 9,
+                    children: [
+                        {
+                            name: "其他类别未包括的危险品；",
+                            type: "original",
+                            category: 9,
+                            children: [
+                                { name: "【对应】锂电池（锂离子电池）、干冰（固体CO2）、磁性物质、石棉、环境危害物质", type: "supplement", category: 9 },
+                                { name: "【归纳】航空运输中数量最多的危险品类别", type: "supplement", category: 9 },
+                                { name: "【归纳】锂电池：PI965-970包装说明，荷电状态≤30%", type: "supplement", category: 9 }
+                            ]
+                        }
+                    ]
                 }
-            });
+            ]
+        };
+        
+        function initTree() {
+            const container = document.getElementById('tree');
+            const width = container.clientWidth;
+            const height = 2800;
             
-            const nodeUpdate = node.merge(nodeEnter).transition().duration(duration)
+            const svg = d3.select("#tree").append("svg")
+                .attr("width", "100%")
+                .attr("height", height)
+                .attr("viewBox", [0, 0, width * 2.5, height]);
+            
+            const g = svg.append("g")
+                .attr("transform", "translate(120,80)");
+            
+            const tree = d3.tree().size([height - 150, width * 2]);
+            
+            const root = d3.hierarchy(treeData);
+            tree(root);
+            
+            g.selectAll(".link")
+                .data(root.links())
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", d3.linkHorizontal()
+                    .x(d => d.y)
+                    .y(d => d.x))
+                .attr("stroke", d => {
+                    if (d.target.data.category) return colors[d.target.data.category];
+                    if (d.target.data.type === "mnemonic") return "#f39c12";
+                    return "#ccc";
+                });
+            
+            const node = g.selectAll(".node")
+                .data(root.descendants())
+                .enter().append("g")
+                .attr("class", "node")
                 .attr("transform", d => `translate(${d.y},${d.x})`);
             
-            nodeUpdate.select('circle')
-                .attr('r', d => {
-                    if (d.depth === 0) return isMobile ? 12 : 18;
-                    if (d.data.isSupplement) return isMobile ? 3 : 5;
-                    return d.depth === 1 ? (isMobile ? 8 : 12) : (isMobile ? 5 : 7);
+            node.append("circle")
+                .attr("r", d => {
+                    if (d.data.type === "root") return 14;
+                    if (d.data.type === "category") return 11;
+                    return 6;
                 })
-                .style("fill", d => d._children ? getNodeColor(d.data.class) : "#fff");
+                .attr("fill", d => {
+                    if (d.data.type === "root") return "#2c3e50";
+                    if (d.data.category) return colors[d.data.category];
+                    if (d.data.type === "mnemonic") return "#f39c12";
+                    return "#95a5a6";
+                });
             
-            const nodeExit = node.exit().transition().duration(duration)
-                .attr("transform", d => `translate(${source.y},${source.x})`)
-                .remove();
-            nodeExit.select('circle').attr('r', 1e-6);
-            nodeExit.select('text').style('fill-opacity', 1e-6);
-            
-            const link = g.selectAll('path.link').data(links, d => d.target.id);
-            const linkEnter = link.enter().insert('path', "g")
-                .attr("class", "link")
-                .attr('d', d => {
-                    const o = {x: source.x0, y: source.y0};
-                    return diagonal(o, o);
+            node.append("text")
+                .attr("dy", "0.31em")
+                .attr("x", d => d.children ? -18 : 18)
+                .attr("text-anchor", d => d.children ? "end" : "start")
+                .text(d => d.data.name)
+                .attr("fill", d => {
+                    if (d.data.type === "supplement") return "#3498db";
+                    if (d.data.type === "original") return "#2ecc71";
+                    return "white";
                 })
-                .style("stroke", d => getNodeColor(d.target.data.class))
-                .style("stroke-opacity", d => d.target.data.isSupplement ? 0.3 : 0.7)
-                .style("stroke-width", d => d.target.data.isSupplement ? (isMobile ? "1.5px" : "2px") : (isMobile ? "2px" : "3px"))
-                .style("stroke-dasharray", d => d.target.data.isSupplement ? "5,5" : "none");
+                .attr("class", d => d.data.type === "supplement" ? "supplement-content" : "")
+                .style("font-weight", d => d.data.type === "category" ? "bold" : "normal")
+                .style("font-size", d => d.data.type === "category" ? "15px" : "12px");
             
-            const linkUpdate = link.merge(linkEnter).transition().duration(duration)
-                .attr('d', d => diagonal(d.source, d.target));
+            const zoom = d3.zoom()
+                .scaleExtent([0.3, 2])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                });
             
-            link.exit().transition().duration(duration)
-                .attr('d', d => {
-                    const o = {x: source.x, y: source.y};
-                    return diagonal(o, o);
-                })
-                .remove();
-            
-            nodes.forEach(d => {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
+            svg.call(zoom);
+            svg.call(zoom.transform, d3.zoomIdentity.translate(100, 50).scale(0.6));
         }
         
-        function diagonal(s, d) {
-            return `M ${s.y} ${s.x} C ${(s.y + d.y) / 2} ${s.x}, ${(s.y + d.y) / 2} ${d.x}, ${d.y} ${d.x}`;
-        }
-        
-        function getNodeColor(className) {
-            const colors = {
-                'c1': '#ff6b6b', 'c2': '#4facfe', 'c3': '#f093fb',
-                'c4': '#fa709a', 'c5': '#feca57', 'c6': '#a29bfe',
-                'c7': '#00d2d3', 'c8': '#54a0ff', 'c9': '#8395a7',
-                'root': '#fff', 'mnemonic': '#ff9ff3'
-            };
-            return colors[className] || '#fff';
-        }
-        
-        function click(event, d) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
-            } else {
-                d.children = d._children;
-                d._children = null;
-            }
-            update(d);
-            centerNode(d);
-        }
-        
-        function centerNode(source) {
-            const t = d3.zoomTransform(svg.node());
-            let x = -source.y0, y = -source.x0;
-            x = x * t.k + (isMobile ? 60 : width / 6);
-            y = y * t.k + height / 2.2;
-            const scale = isMobile ? 0.9 : 0.55;
-            svg.transition().duration(750).call(d3.zoom().transform, d3.zoomIdentity.translate(x, y).scale(scale));
-        }
-        
-        function showTooltip(event, d) {
-            const tooltip = document.getElementById('tooltip');
-            if (!tooltip) return;
-            let content = '';
-            if (d.data.isOriginal) {
-                content += '<span style="background:#48bb78;color:white;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:900">原文</span><br>';
-            } else {
-                content += '<span style="background:#4299e1;color:white;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:900">补充</span><br>';
-            }
-            content += `<div style="font-weight:900;font-size:${isMobile ? 14 : 16}px;margin-top:5px;line-height:1.3">${d.data.name}</div>`;
-            if (d.data.highlight) {
-                content += `<div style="color:#fc8181;font-size:12px;margin-top:5px">💡 ${d.data.highlight}</div>`;
-            }
-            if (d.data.note) {
-                content += `<div style="color:#fc8181;font-size:12px;margin-top:5px">⚠️ ${d.data.note}</div>`;
-            }
-            tooltip.innerHTML = content;
-            tooltip.style.left = (event.pageX + 10) + 'px';
-            tooltip.style.top = (event.pageY - 10) + 'px';
-            tooltip.style.opacity = 1;
-        }
-        
-        function hideTooltip() {
-            const t = document.getElementById('tooltip');
-            if (t) t.style.opacity = 0;
-        }
-        
-        window.toggleMode = function() {
-            showSupplements = !showSupplements;
-            update(root);
-        };
-        
-        window.toggleRecite = function() {
+        let reciteMode = false;
+        function toggleReciteMode() {
             reciteMode = !reciteMode;
-            const btn = document.querySelector('.btn-recite');
-            if (reciteMode) {
-                btn.textContent = isMobile ? '退出' : '退出背诵';
-                btn.style.background = '#e53e3e';
-                document.body.classList.add('hide-supplements');
-            } else {
-                btn.textContent = isMobile ? '背诵' : '背诵模式';
-                btn.style.background = 'linear-gradient(135deg,#ed8936 0%,#dd6b20 100%)';
-                document.body.classList.remove('hide-supplements');
-            }
-            update(root);
-        };
+            document.body.classList.toggle('recite-mode', reciteMode);
+            const btn = document.querySelector('.btn-secondary');
+            btn.textContent = reciteMode ? "👁️ 显示答案" : "🎯 切换模式";
+        }
         
-        window.addEventListener('resize', () => {
-            location.reload();
-        });
+        function exportImage() {
+            const hint = document.getElementById('exportHint');
+            hint.style.display = 'block';
+            
+            const svg = document.querySelector('svg');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                canvas.width = img.width * 2;
+                canvas.height = img.height * 2;
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                const link = document.createElement('a');
+                link.download = '危险品分类思维导图_' + new Date().getTime() + '.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                
+                hint.style.display = 'none';
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+        }
+        
+        window.onload = initTree;
+        window.onresize = () => {
+            document.getElementById('tree').innerHTML = '';
+            initTree();
+        };
     </script>
 </body>
 </html>
