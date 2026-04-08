@@ -14,8 +14,7 @@
         .btn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.3s}
         .btn-mode{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white}
         .btn-recite{background:linear-gradient(135deg,#ed8936 0%,#dd6b20 100%);color:white}
-        .btn-export{background:linear-gradient(135deg,#38b2ac 0%,#319795 100%);color:white}
-        .mnemonic-bar{position:fixed;top:85px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff6b6b 0%,#ee5a6f 100%);color:white;padding:12px 30px;border-radius:50px;font-size:18px;font-weight:900;z-index:999;letter-spacing:3px}
+        .mnemonic-bar{position:fixed;top:85px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff6b6b 0%,#ee5a6f 100%);color:white;padding:12px 30px;border-radius:50px;font-size:18px;font-weight:900;z-index:999;letter-spacing:3px;text-align:center}
         #chart{width:100%;height:100%;padding-top:140px}
         .node circle{fill:#fff;stroke-width:4px;cursor:pointer;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.3))}
         .link{fill:none;stroke:rgba(255,255,255,0.4);stroke-width:3px;stroke-linecap:round}
@@ -26,7 +25,8 @@
         .legend-item{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:12px;color:rgba(255,255,255,0.9)}
         .legend-color{width:16px;height:16px;border-radius:4px;box-shadow:0 2px 5px rgba(0,0,0,0.3)}
         .hide-supplements .supplement-node{display:none}
-        @media (max-width:768px){.legend-panel{display:none}.mnemonic-bar{font-size:14px;padding:10px 20px}}
+        .tooltip{position:absolute;background:rgba(0,0,0,0.9);color:white;padding:12px;border-radius:8px;font-size:13px;max-width:300px;pointer-events:none;opacity:0;transition:opacity 0.3s;z-index:2000;border-left:4px solid #667eea}
+        @media (max-width:768px){.legend-panel{display:none}.mnemonic-bar{font-size:14px;padding:10px 20px;width:90%}}
     </style>
 </head>
 <body>
@@ -35,10 +35,9 @@
         <div class="controls">
             <button class="btn btn-mode" onclick="toggleMode()">切换模式</button>
             <button class="btn btn-recite" onclick="toggleRecite()">背诵模式</button>
-            <button class="btn btn-export" onclick="exportPDF()">导出PDF</button>
         </div>
     </div>
-    <div class="mnemonic-bar">爆气液固氧毒放腐杂 | 1爆2气3液4固5氧6毒7放8腐9杂</div>
+    <div class="mnemonic-bar">爆气液固氧毒放腐杂<br><small style="font-size:14px;opacity:0.9">1爆2气3液4固5氧6毒7放8腐9杂</small></div>
     <div class="legend-panel">
         <div style="font-size:14px;font-weight:900;margin-bottom:15px">类别颜色</div>
         <div class="legend-item"><div class="legend-color" style="background:#ff6b6b"></div>爆炸品</div>
@@ -53,6 +52,7 @@
         <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,0.7)"><span style="color:#48bb78">●</span>绿色=原文 <span style="color:#63b3ed">●</span>蓝色=补充</div>
     </div>
     <div id="chart"></div>
+    <div class="tooltip" id="tooltip"></div>
 
     <script>
         const treeData={name:"危险品的分类",class:"root",isOriginal:true,children:[{name:"记忆口诀",class:"mnemonic",isOriginal:true,children:[{name:"爆气液固氧毒放腐杂",class:"mnemonic",isOriginal:true},{name:"1爆2气3液4固5氧6毒7放8腐9杂",class:"mnemonic",isOriginal:true}]},{name:"第1类 爆炸品",class:"c1",isOriginal:true,children:[{name:"1.1项 有整体爆炸危险性的物质和物品；",class:"c1",isOriginal:true},{name:"1.2项 有迸射危险，但无整体爆炸危险的物质和物品；",class:"c1",isOriginal:true},{name:"1.3项 有燃烧危险并有局部爆炸危险或局部迸射危险或这两种危险都有，但无整体爆炸危险的物质和物品；（1.3C、1.3G仅限货机运输）",class:"c1",isOriginal:true,note:"1.3C、1.3G仅限货机运输"},{name:"1.4项 不呈现重大危险的物质和物品；（1.4F禁止运输，1.4B、1.4C、1.4D、1.4E、1.4G仅限货机运输，1.4S可以用客机或货机运输）",class:"c1",isOriginal:true,note:"1.4F禁止运输；1.4B/C/D/E/G仅限货机；1.4S客货机均可"},{name:"1.5项 有整体爆炸危险的非常不敏感物质；",class:"c1",isOriginal:true},{name:"1.6项 无整体爆炸危险的极端不敏感物品。",class:"c1",isOriginal:true},{name:"【对应物品】TNT、雷管、C4炸药、烟花爆竹",class:"c1",isOriginal:false,isSupplement:true}]},{name:"第2类 气体",class:"c2",isOriginal:true,children:[{name:"2.1项 易燃气体；",class:"c2",isOriginal:true},{name:"2.2项 非易燃无毒气体；",class:"c2",isOriginal:true,note:"高压窒息风险",children:[{name:"【对应物品】氮气、氦气、二氧化碳、灭火器、氧气瓶",class:"c2",isOriginal:false,isSupplement:true,highlight:"虽无毒，但高压+窒息风险"}]},{name:"2.3项 毒性气体。",class:"c2",isOriginal:true},{name:"【对应物品】氯气、氨气、一氧化碳、光气",class:"c2",isOriginal:false,isSupplement:true}]},{name:"第3类 易燃液体",class:"c3",isOriginal:true,children:[{name:"【对应物品】汽油、柴油、酒精、油漆、指甲油",class:"c3",isOriginal:false,isSupplement:true}]},{name:"第4类 易燃固体、易于自燃的物质和遇水放出易燃气体的物质",class:"c4",isOriginal:true,children:[{name:"4.1项 易燃固体、自反应物质和固态退敏爆炸品；",class:"c4",isOriginal:true},{name:"4.2项 易于自燃的物质；",class:"c4",isOriginal:true},{name:"4.3项 遇水放出易燃气体的物质。",class:"c4",isOriginal:true,note:"严禁用水灭火",children:[{name:"【对应物品】电石、金属钠、金属钾（遇水即燃）",class:"c4",isOriginal:false,isSupplement:true,highlight:"严禁用水灭火"}]},{name:"【对应物品】火柴、硫磺、白磷、油纸",class:"c4",isOriginal:false,isSupplement:true}]},{name:"第5类 氧化性物质和有机过氧化物",class:"c5",isOriginal:true,children:[{name:"5.1项 氧化性物质；",class:"c5",isOriginal:true,note:"本身不燃，但助燃",children:[{name:"【对应物品】双氧水、高锰酸钾、漂白粉、84消毒液",class:"c5",isOriginal:false,isSupplement:true,highlight:"强氧化性，助燃"}]},{name:"5.2项 有机过氧化物。",class:"c5",isOriginal:true},{name:"【对应物品】过乙酸、过氧化苯甲酰",class:"c5",isOriginal:false,isSupplement:true}]},{name:"第6类 毒性物质和感染性物质",class:"c6",isOriginal:true,children:[{name:"6.1项 毒性物质；",class:"c6",isOriginal:true},{name:"6.2项 感染性物质。",class:"c6",isOriginal:true},{name:"【对应物品】砒霜、氰化钠、农药、水银",class:"c6",isOriginal:false,isSupplement:true}]},{name:"第7类 放射性物质",class:"c7",isOriginal:true,children:[{name:"【对应物品】钴-60、铀、镭、医用同位素",class:"c7",isOriginal:false,isSupplement:true}]},{name:"第8类 腐蚀性物质",class:"c8",isOriginal:true,children:[{name:"【对应物品】硫酸、盐酸、烧碱、电池液",class:"c8",isOriginal:false,isSupplement:true}]},{name:"第9类 杂项危险物质和物品，包括危害环境物质",class:"c9",isOriginal:true,children:[{name:"【对应物品】锂电池、干冰、强力磁铁",class:"c9",isOriginal:false,isSupplement:true}]}]};
@@ -64,35 +64,92 @@
         let i=0;const duration=600;let root;
         const tree=d3.tree().size([height-200,width-400]);
         root=d3.hierarchy(treeData,d=>d.children);root.x0=height/2;root.y0=0;
-        root.children.forEach((d,index)=>{if(index>0&&d.children){d.children.forEach(child=>{if(child.children&&!child.isSupplement){child._children=child.children;child.children=null}})}});
-        update(root);centerNode(root);
+        
+        root.children.forEach((d,index)=>{
+            if(index>0&&d.children){
+                d.children.forEach(child=>{
+                    if(child.children&&!child.isSupplement){
+                        child._children=child.children;
+                        child.children=null;
+                    }
+                });
+            }
+        });
+        
+        update(root);
+        centerNode(root);
 
         function collapse(d){if(d.children){d._children=d.children;d._children.forEach(collapse);d.children=null}}
         function expand(d){if(d._children){d.children=d._children;d._children=null}if(d.children){d.children.forEach(expand)}}
+        
         function update(source){
-            const treeData=tree(root);let nodes=treeData.descendants();const links=treeData.links();
+            const treeData=tree(root);
+            let nodes=treeData.descendants();
+            const links=treeData.links();
+            
             if(!showSupplements&&!reciteMode){nodes=nodes.filter(d=>d.data.isOriginal)}
+            if(reciteMode){nodes=nodes.filter(d=>d.depth<=1||d.data.isOriginal)}
+            
             nodes.forEach(d=>{d.y=d.depth*280});
+            
             const node=g.selectAll('g.node').data(nodes,d=>d.id||(d.id=++i));
             const nodeEnter=node.enter().append('g').attr('class',d=>d.data.isSupplement?'node supplement-node':'node').attr("transform",d=>`translate(${source.y0},${source.x0})`).on('click',click).on('mouseover',showTooltip).on('mouseout',hideTooltip);
+            
             nodeEnter.append('circle').attr('class',d=>d.data.class||'root').attr('r',1e-6).style("fill",d=>d._children?getNodeColor(d.data.class):"#fff").style("stroke",d=>getNodeColor(d.data.class));
+            
             nodeEnter.append('text').attr("dy",".35em").attr("x",d=>d.children||d._children?-18:18).attr("text-anchor",d=>d.children||d._children?"end":"start").text(d=>d.data.name).attr("class",d=>d.data.isSupplement?"label-supplement":"label-original").style("font-size",d=>d.depth===0?"20px":d.depth===1?"17px":d.data.isSupplement?"12px":"14px");
+            
             const nodeUpdate=node.merge(nodeEnter).transition().duration(duration).attr("transform",d=>`translate(${d.y},${d.x})`);
             nodeUpdate.select('circle').attr('r',d=>d.depth===0?15:d.data.isSupplement?5:d.depth===1?10:7).style("fill",d=>d._children?getNodeColor(d.data.class):"#fff");
-            const nodeExit=node.exit().transition().duration(duration).attr("transform",d=>`translate(${source.y},${source.x})`).remove();nodeExit.select('circle').attr('r',1e-6);nodeExit.select('text').style('fill-opacity',1e-6);
+            
+            const nodeExit=node.exit().transition().duration(duration).attr("transform",d=>`translate(${source.y},${source.x})`).remove();
+            nodeExit.select('circle').attr('r',1e-6);
+            nodeExit.select('text').style('fill-opacity',1e-6);
+            
             const link=g.selectAll('path.link').data(links,d=>d.target.id);
             const linkEnter=link.enter().insert('path',"g").attr("class","link").attr('d',d=>{const o={x:source.x0,y:source.y0};return diagonal(o,o)}).style("stroke",d=>getNodeColor(d.target.data.class)).style("stroke-opacity",d=>d.target.data.isSupplement?0.3:0.7).style("stroke-width",d=>d.target.data.isSupplement?"2px":"3px").style("stroke-dasharray",d=>d.target.data.isSupplement?"5,5":"none");
-            const linkUpdate=link.merge(linkEnter).transition().duration(duration).attr('d',d=>diagonal(d.source,d.target));link.exit().transition().duration(duration).attr('d',d=>{const o={x:source.x,y:source.y};return diagonal(o,o)}).remove();nodes.forEach(d=>{d.x0=d.x;d.y0=d.y})
+            const linkUpdate=link.merge(linkEnter).transition().duration(duration).attr('d',d=>diagonal(d.source,d.target));
+            link.exit().transition().duration(duration).attr('d',d=>{const o={x:source.x,y:source.y};return diagonal(o,o)}).remove();
+            
+            nodes.forEach(d=>{d.x0=d.x;d.y0=d.y});
         }
+        
         function diagonal(s,d){return`M ${s.y} ${s.x}C ${(s.y+d.y)/2} ${s.x},${(s.y+d.y)/2} ${d.x},${d.y} ${d.x}`}
         function getNodeColor(className){const colors={'c1':'#ff6b6b','c2':'#4facfe','c3':'#f093fb','c4':'#fa709a','c5':'#feca57','c6':'#a29bfe','c7':'#00d2d3','c8':'#54a0ff','c9':'#8395a7','root':'#fff','mnemonic':'#ff9ff3'};return colors[className]||'#fff'}
         function click(event,d){if(d.children){d._children=d.children;d.children=null}else{d.children=d._children;d._children=null}update(d);centerNode(d)}
         function centerNode(source){const t=d3.zoomTransform(svg.node());let x=-source.y0,y=-source.x0;x=x*t.k+width/5;y=y*t.k+height/2;svg.transition().duration(750).call(d3.zoom().transform,d3.zoomIdentity.translate(x,y).scale(1))}
-        function showTooltip(event,d){const tooltip=document.getElementById('tooltip');if(!tooltip)return;let content='';if(d.data.isOriginal){content+='<span style="background:#48bb78;color:white;padding:2px 6px;border-radius:4px;font-size:11px">原文</span><br>'}else{content+='<span style="background:#4299e1;color:white;padding:2px 6px;border-radius:4px;font-size:11px">补充</span><br>'}content+=`<div style="font-weight:700;font-size:15px;margin-top:5px">${d.data.name}</div>`;if(d.data.highlight){content+=`<div style="color:#fc8181;font-size:12px;margin-top:5px">💡 ${d.data.highlight}</div>`}if(d.data.note){content+=`<div style="color:#fc8181;font-size:12px;margin-top:5px">⚠️ ${d.data.note}</div>`}tooltip.innerHTML=content;tooltip.style.left=(event.pageX+15)+'px';tooltip.style.top=(event.pageY-10)+'px';tooltip.style.position='absolute';tooltip.style.background='rgba(0,0,0,0.9)';tooltip.style.color='white';tooltip.style.padding='12px';tooltip.style.borderRadius='8px';tooltip.style.maxWidth='300px';tooltip.style.zIndex='2000';tooltip.style.opacity=1}
+        
+        function showTooltip(event,d){
+            const tooltip=document.getElementById('tooltip');
+            if(!tooltip)return;
+            let content='';
+            if(d.data.isOriginal){content+='<span style="background:#48bb78;color:white;padding:2px 6px;border-radius:4px;font-size:11px">原文</span><br>'}else{content+='<span style="background:#4299e1;color:white;padding:2px 6px;border-radius:4px;font-size:11px">补充</span><br>'}
+            content+=`<div style="font-weight:700;font-size:15px;margin-top:5px;line-height:1.3">${d.data.name}</div>`;
+            if(d.data.highlight){content+=`<div style="color:#fc8181;font-size:12px;margin-top:5px">💡 ${d.data.highlight}</div>`}
+            if(d.data.note){content+=`<div style="color:#fc8181;font-size:12px;margin-top:5px">⚠️ ${d.data.note}</div>`}
+            tooltip.innerHTML=content;
+            tooltip.style.left=(event.pageX+15)+'px';
+            tooltip.style.top=(event.pageY-10)+'px';
+            tooltip.style.opacity=1;
+        }
+        
         function hideTooltip(){const t=document.getElementById('tooltip');if(t)t.style.opacity=0}
+        
         window.toggleMode=function(){showSupplements=!showSupplements;update(root)}
-        window.toggleRecite=function(){reciteMode=!reciteMode;const btn=document.querySelector('.btn-recite');if(reciteMode){btn.textContent='退出背诵';btn.style.background='#e53e3e';document.body.classList.add('hide-supplements')}else{btn.textContent='背诵模式';btn.style.background='linear-gradient(135deg,#ed8936 0%,#dd6b20 100%)';document.body.classList.remove('hide-supplements')}update(root)}
-        window.exportPDF=function(){window.print()}
+        window.toggleRecite=function(){
+            reciteMode=!reciteMode;
+            const btn=document.querySelector('.btn-recite');
+            if(reciteMode){
+                btn.textContent='退出背诵';
+                btn.style.background='#e53e3e';
+                document.body.classList.add('hide-supplements');
+            }else{
+                btn.textContent='背诵模式';
+                btn.style.background='linear-gradient(135deg,#ed8936 0%,#dd6b20 100%)';
+                document.body.classList.remove('hide-supplements');
+            }
+            update(root);
+        }
     </script>
 </body>
 </html>
