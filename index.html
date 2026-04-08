@@ -141,7 +141,7 @@
             filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
         }
         .node text {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 500;
         }
         .link {
@@ -171,7 +171,7 @@
         }
         @media (max-width: 480px) {
             .mnemonic-banner { font-size: 14px; padding: 10px 5px; }
-            .node text { font-size: 11px; }
+            .node text { font-size: 9px; }
         }
         .export-hint {
             position: fixed;
@@ -238,19 +238,18 @@
             5: "#f39c12", 6: "#9b59b6", 7: "#00cec9", 8: "#0984e3", 9: "#636e72"
         };
         
+        // ✅ 修复：强制按字符长度换行（不依赖分号）
         function wrapText(text, maxLength) {
-            if (text.length <= maxLength) return [text];
-            const words = text.split("；");
+            if (!text || text.length <= maxLength) return [text];
             const lines = [];
             let currentLine = "";
-            words.forEach(word => {
-                if ((currentLine + word).length > maxLength && currentLine.length > 0) {
-                    lines.push(currentLine + "；");
-                    currentLine = word;
-                } else {
-                    currentLine += (currentLine ? "；" : "") + word;
+            for (let i = 0; i < text.length; i++) {
+                currentLine += text[i];
+                if (currentLine.length >= maxLength && i < text.length - 1) {
+                    lines.push(currentLine);
+                    currentLine = "";
                 }
-            });
+            }
             if (currentLine) lines.push(currentLine);
             return lines.length > 0 ? lines : [text];
         }
@@ -347,22 +346,23 @@
         function initTree() {
             const container = document.getElementById("tree");
             const width = container.clientWidth;
-            const height = 4000;
+            const height = 5000;
             
             const svg = d3.select("#tree").append("svg")
                 .attr("width", "100%")
                 .attr("height", height)
-                .attr("viewBox", [0, 0, width * 1.8, height]);
+                .attr("viewBox", [0, 0, width * 2, height]);
             
             const g = svg.append("g");
             
-            const tree = d3.tree().nodeSize([50, 240]);
+            // ✅ 修复：增大垂直间距[70, 180]，缩短水平间距
+            const tree = d3.tree().nodeSize([70, 180]);
             
             const root = d3.hierarchy(treeData);
             tree(root);
             
-            const offsetX = 100;
-            const offsetY = 80;
+            const offsetX = 120;
+            const offsetY = 100;
             
             g.attr("transform", `translate(${offsetX},${offsetY})`);
             
@@ -386,7 +386,7 @@
                 .attr("transform", d => `translate(${d.y},${d.x})`);
             
             node.append("circle")
-                .attr("r", d => d.data.type === "root" ? 12 : d.data.type === "category" ? 9 : 5)
+                .attr("r", d => d.data.type === "root" ? 10 : d.data.type === "category" ? 8 : 4)
                 .attr("fill", d => {
                     if (d.data.type === "root") return "#2c3e50";
                     if (d.data.category) return colors[d.data.category];
@@ -397,30 +397,32 @@
             node.each(function(d) {
                 const text = d3.select(this).append("text")
                     .attr("dy", "0.31em")
-                    .attr("x", d.children ? -12 : 12)
+                    .attr("x", d.children ? -10 : 10)
                     .attr("text-anchor", d.children ? "end" : "start")
                     .style("font-weight", d.data.type === "category" ? "bold" : "normal")
-                    .style("font-size", d.data.type === "category" ? "13px" : "11px")
+                    // ✅ 修复：减小字体到10px
+                    .style("font-size", d.data.type === "category" ? "11px" : "10px")
                     .style("fill", d.data.type === "supplement" ? "#3498db" : d.data.type === "original" ? "#2ecc71" : "white")
                     .attr("class", d.data.type === "supplement" ? "supplement-content" : "");
                 
-                const lines = wrapText(d.data.name, 28);
+                // ✅ 修复：减小maxLength到20，强制换行
+                const lines = wrapText(d.data.name, 20);
                 lines.forEach((line, i) => {
                     text.append("tspan")
-                        .attr("x", d.children ? -12 : 12)
-                        .attr("dy", i === 0 ? "0.31em" : "1.2em")
+                        .attr("x", d.children ? -10 : 10)
+                        .attr("dy", i === 0 ? "0.31em" : "1.1em")
                         .text(line);
                 });
             });
             
             const zoom = d3.zoom()
-                .scaleExtent([0.4, 2])
+                .scaleExtent([0.3, 2])
                 .on("zoom", (event) => {
                     g.attr("transform", `translate(${offsetX + event.transform.x},${offsetY + event.transform.y}) scale(${event.transform.k})`);
                 });
             
             svg.call(zoom);
-            svg.call(zoom.transform, d3.zoomIdentity.scale(0.8));
+            svg.call(zoom.transform, d3.zoomIdentity.scale(0.7));
         }
         
         let reciteMode = false;
